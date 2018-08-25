@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment> SQL Editora</comment>
+	
+	<entry key="sql.insert"> insert into Editoras (razao_social, cidade, email) values (?,?,?)</entry>
+</properties> 
