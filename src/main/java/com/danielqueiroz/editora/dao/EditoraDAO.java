@@ -2,8 +2,10 @@ package com.danielqueiroz.editora.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +17,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import com.danielqueiroz.editora.dao.mapper.EditoraMapper;
+import com.danielqueiroz.editora.model.Autor;
 import com.danielqueiroz.editora.model.Editora;
 
 @Repository
@@ -27,11 +30,73 @@ public class EditoraDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	
+	public Editora findEditoraWithAutoresPaginados(int id, int page, int size) {
+		List<Map<String, Object>> rows = jdbcTemplate
+				.queryForList(
+						"select e.id_editora, e.razao_social, e.cidade, e.email, "
+								+ "a.id_autor, a.nome, a.email as autor_email, a.id_editora as autor_id_editora"
+								+ " from Editoras e, Autores a where e.id_editora = a.id_editora and e.id_editora = ? limit ?,?",
+						id, page * size, size);
+
+		Editora editora = null;
+
+		for (Map row : rows) {
+
+			if (editora == null) {
+				editora = new Editora();
+				editora.setId((Integer) row.get("id_editora"));
+				editora.setCidade((String) row.get("cidade"));
+				editora.setRazaoSocial((String) row.get("razao_social"));
+				editora.setEmail((String) row.get("email"));
+			}
+
+			Autor autor = new Autor();
+			autor.setId((Integer) row.get("id_autor"));
+			autor.setNome((String) row.get("nome"));
+			autor.setEmail((String) row.get("autor_email"));
+
+			editora.getAutores().add(autor);
+		}
+
+		return editora;
+
+	}
+
+	public Editora findEditoraWithAutores(int id) {
+		List<Map<String, Object>> rows = jdbcTemplate
+				.queryForList(
+						"select e.id_editora, e.razao_social, e.cidade, e.email, "
+								+ "a.id_autor, a.nome, a.email as autor_email, a.id_editora as autor_id_editora"
+								+ " from Editoras e, Autores a where e.id_editora = a.id_editora and e.id_editora = ? ",
+						id);
+
+		Editora editora = null;
+
+		for (Map row : rows) {
+
+			if (editora == null) {
+				editora = new Editora();
+				editora.setId((Integer) row.get("id_editora"));
+				editora.setCidade((String) row.get("cidade"));
+				editora.setRazaoSocial((String) row.get("razao_social"));
+				editora.setEmail((String) row.get("email"));
+			}
+
+			Autor autor = new Autor();
+			autor.setId((Integer) row.get("id_autor"));
+			autor.setNome((String) row.get("nome"));
+			autor.setEmail((String) row.get("autor_email"));
+
+			editora.getAutores().add(autor);
+		}
+
+		return editora;
+	}
+
 	public int delete(int id) {
 		return jdbcTemplate.update("delete from Editoras where id_editora = ? ", id);
 	}
-	
+
 	public int update(Editora editora, String razao_social, String cidade, String email) {
 		return jdbcTemplate.update("update Editoras set razao_social = ?, cidade = ?, email = ? where id_editora = ?",
 				razao_social, cidade, email, editora.getId());

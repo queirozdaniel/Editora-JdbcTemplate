@@ -1,11 +1,17 @@
 package com.danielqueiroz.editora.model;
 
-public class Editora {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+public class Editora implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String razaoSocial;
 	private String cidade;
 	private String email;
+	private List<Autor> autores = new ArrayList<>();
 
 	public Editora() {
 	}
@@ -49,6 +55,14 @@ public class Editora {
 		this.email = email;
 	}
 
+	public List<Autor> getAutores() {
+		return autores;
+	}
+
+	public void setAutores(List<Autor> autores) {
+		this.autores = autores;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -60,6 +74,8 @@ public class Editora {
 		builder.append(cidade);
 		builder.append(", email=");
 		builder.append(email);
+		builder.append(", autores=");
+		builder.append(autores);
 		builder.append("]");
 		return builder.toString();
 	}

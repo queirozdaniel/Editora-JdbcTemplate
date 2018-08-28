@@ -9,8 +9,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.danielqueiroz.editora.dao.AutorDAO;
 import com.danielqueiroz.editora.dao.EditoraDAO;
+import com.danielqueiroz.editora.dao.LivroAutorDAO;
+import com.danielqueiroz.editora.dao.LivroDAO;
 import com.danielqueiroz.editora.model.Autor;
 import com.danielqueiroz.editora.model.Editora;
+import com.danielqueiroz.editora.model.Livro;
+import com.danielqueiroz.editora.model.LivroAutor;
 
 @SpringBootApplication
 public class EditoraApplication implements CommandLineRunner {
@@ -19,7 +23,12 @@ public class EditoraApplication implements CommandLineRunner {
 	private EditoraDAO editoraDAO;
 	@Autowired
 	private AutorDAO autorDAO;
-
+	@Autowired
+	private LivroDAO livroDAO;
+	@Autowired
+	private LivroAutorDAO livroAutorDAO;
+	
+	
 	public static void main(String[] args) {
 		SpringApplication.run(EditoraApplication.class, args);
 	}
@@ -38,11 +47,117 @@ public class EditoraApplication implements CommandLineRunner {
 		// findCidadeAndEmailByIdEditora();
 		// updateEditora();
 		// deleteEditora();
+//		findEditorasWithAutoresTest();
+
 		// insertAutor();
-
-		findAllAutores();
-
+		// findAllAutores();
+		// findAutoresByEditora();
+		// updateAutor();
+		// deleteAutor();
+		
+//		insertLivro();
+//		findLivroWithAutores();
+		findAutorWithLivros();
+		
+		
 		System.out.println("\n\n<<<<< END RUNNER >>>>>");
+	}
+
+	private void findAutorWithLivros() {
+
+		Autor autor = autorDAO.findAutorWithLivros(1);
+		System.out.println(autor);
+		
+		autor.getLivros().forEach(System.out::println);
+		
+	}
+
+	private void findLivroWithAutores() {
+		
+		Livro livro = livroDAO.findLivroWithAutores(1);
+		
+		System.out.println(livro);
+		
+		livro.getAutores().forEach(System.out::println);
+		
+	}
+
+	private void insertLivro() {
+
+		Livro jse = new Livro();
+		jse.setTitulo("Empreendedorismo e tecnologia");
+		jse.setPaginas(312);
+		jse.setEdicao(1);
+		
+		String[] autores = {"Daniel Queiroz"};
+		
+		jse = livroDAO.save(jse);
+		
+		Integer idLivro = jse.getId();
+		
+		for (String string : autores) {
+			Integer idAutor = autorDAO.getIdByNome(string);
+			
+			livroAutorDAO.save(new LivroAutor(idLivro, idAutor));
+		}
+		
+	}
+
+	private void findEditorasWithAutoresTest() {
+
+		Editora editora = editoraDAO.findEditoraWithAutoresPaginados(3, 0, 2);
+
+		System.out.printf("\n %s, %s, %s\n", editora.getRazaoSocial(), editora.getCidade(),
+				editora.getEmail());
+
+		editora.getAutores().forEach(System.out::println);
+
+		System.out.println("---------------------------------");
+
+		editora = editoraDAO.findEditoraWithAutoresPaginados(3, 1, 2);
+		editora.getAutores().forEach(System.out::println);
+
+		System.out.println("---------------------------------");
+
+		editora = editoraDAO.findEditoraWithAutoresPaginados(3, 2, 2);
+		editora.getAutores().forEach(System.out::println);
+
+	}
+
+	private void deleteAutor() {
+
+		int i = autorDAO.delete(2);
+
+		if (i == 1) {
+			System.out.println("Autor deletado \n ");
+		} else {
+			System.out.println("Erro no delete");
+		}
+
+	}
+
+	private void updateAutor() {
+		Autor autor = autorDAO.finById(1);
+
+		Editora editora = new Editora();
+		editora.setId(3);
+		autor.setEditora(editora);
+
+		System.out.println(autor);
+
+		int i = autorDAO.update(autor);
+
+		if (i == 1) {
+			Autor atualizado = autorDAO.finById(1);
+			System.out.println("Autor atualizado\n " + atualizado);
+		} else {
+			System.out.println("Erro na atualização");
+		}
+	}
+
+	private void findAutoresByEditora() {
+		List<Autor> autores = autorDAO.findAutoresByEditora("Stm-Eletronics");
+		autores.forEach(System.out::println);
 	}
 
 	private void findAllAutores() {
@@ -51,12 +166,14 @@ public class EditoraApplication implements CommandLineRunner {
 	}
 
 	private void insertAutor() {
-		Editora editora = editoraDAO.findById(2);
+		Editora editora = editoraDAO.findById(3);
 
-		Autor autor = new Autor("Luciana da Silva", "luciana@gmail.com", editora);
+		Autor autor = new Autor("Marcos Castro", "marcos_mat@gmail.com", editora);
+		Autor autor2 = new Autor("Josef Roth", "roth@gmail.com", editora);
 
 		if (autor.getId() == null) {
 			autor = autorDAO.save(autor);
+			autor2 = autorDAO.save(autor2);
 			System.out.println("Salvandor...");
 		}
 
@@ -67,10 +184,13 @@ public class EditoraApplication implements CommandLineRunner {
 	}
 
 	private void deleteEditora() {
-		int i = editoraDAO.delete(4);
+		int i = editoraDAO.delete(2);
 
-		List<Editora> editoras = editoraDAO.findAll();
-		editoras.forEach(System.out::println);
+		if (i == 1) {
+			System.out.println("Operação realizada com sucesso! \n ");
+		} else {
+			System.out.println("Erro na operação!");
+		}
 	}
 
 	private void updateEditora() {

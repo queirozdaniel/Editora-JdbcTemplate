@@ -16,7 +16,10 @@ public class AutorMapper implements RowMapper<Autor> {
 	public AutorMapper(EditoraDAO dao) {
 		this.editoraDAO = dao;
 	}
-	
+
+	public AutorMapper() {
+	}
+
 	@Override
 	public Autor mapRow(ResultSet rs, int rowNum) throws SQLException {
 		Autor autor = new Autor();
@@ -25,33 +28,33 @@ public class AutorMapper implements RowMapper<Autor> {
 		autor.setEmail(rs.getString("email"));
 
 		Editora editora = editoraDAO.findById(rs.getInt("id_editora"));
-		
+
 		autor.setEditora(editora);
-		
+
 		return autor;
 	}
 
-	public class AutorWithEditoraMapper implements RowMapper<Autor>{
+	public class AutorWithEditoraMapper implements RowMapper<Autor> {
 
 		@Override
 		public Autor mapRow(ResultSet rs, int rowNum) throws SQLException {
-			
+
 			Autor autor = new Autor();
 			autor.setId(rs.getInt("id_autor"));
 			autor.setNome(rs.getString("nome"));
 			autor.setEmail(rs.getString("email"));
-			
+
 			Editora editora = new Editora();
 			editora.setId(rs.getInt("ed_id_editora"));
 			editora.setRazaoSocial(rs.getString("razao_social"));
 			editora.setCidade(rs.getString("cidade"));
 			editora.setEmail(rs.getString("ed_email"));
-			
+
 			autor.setEditora(editora);
-			
+
 			return autor;
 		}
-		
+
 	}
-	
+
 }

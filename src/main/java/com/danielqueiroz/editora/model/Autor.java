@@ -1,11 +1,18 @@
 package com.danielqueiroz.editora.model;
 
-public class Autor {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+public class Autor implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String nome;
 	private String email;
 	private Editora editora;
+
+	private List<Livro> livros = new ArrayList<>();
 
 	public Autor() {
 	}
@@ -46,6 +53,14 @@ public class Autor {
 
 	public void setEditora(Editora editora) {
 		this.editora = editora;
+	}
+
+	public List<Livro> getLivros() {
+		return livros;
+	}
+
+	public void setLivros(List<Livro> livros) {
+		this.livros = livros;
 	}
 
 	@Override
