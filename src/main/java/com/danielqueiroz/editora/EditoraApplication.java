@@ -1,6 +1,8 @@
 package com.danielqueiroz.editora;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -27,8 +29,7 @@ public class EditoraApplication implements CommandLineRunner {
 	private LivroDAO livroDAO;
 	@Autowired
 	private LivroAutorDAO livroAutorDAO;
-	
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(EditoraApplication.class, args);
 	}
@@ -47,39 +48,137 @@ public class EditoraApplication implements CommandLineRunner {
 		// findCidadeAndEmailByIdEditora();
 		// updateEditora();
 		// deleteEditora();
-//		findEditorasWithAutoresTest();
+		// findEditorasWithAutoresTest();
 
 		// insertAutor();
 		// findAllAutores();
 		// findAutoresByEditora();
 		// updateAutor();
 		// deleteAutor();
-		
-//		insertLivro();
-//		findLivroWithAutores();
-		findAutorWithLivros();
-		
-		
+
+		// insertLivro();
+		// findLivroWithAutores();
+		// findAutorWithLivros();
+		// findLivroByEdicao();
+		// findLivrosByPaginas();
+		// updateLivro();
+		// alterLivro();
+		// findLivroByTituloAndEdicao();
+
+		// procedureUppercaseTituloLivro();
+		// procedureInfoLivro();
+		// functionTotalDeLivrosPorAutor();
+		insertBatchEditoras();
+
 		System.out.println("\n\n<<<<< END RUNNER >>>>>");
+	}
+
+	private void insertBatchEditoras() {
+
+		Editora editora = new Editora("Editora Vida", "Porto Alegre", "vida@ed-gmail.com.br");
+		Editora editora2 = new Editora("Editora Novos Costumes LTDA", "Sao Paulo", "novas@gmail.com.br");
+
+		List<Editora> editoras = Arrays.asList(editora, editora2);
+
+//		editoraDAO.saveBatch(editoras);
+		editoraDAO.insertBatch(editoras);
+	}
+
+	private void functionTotalDeLivrosPorAutor() {
+		String texto = livroDAO.callFunctionTotalLivrosByAutor(1);
+		System.out.println(texto);
+	}
+
+	private void procedureInfoLivro() {
+
+		List<String> infos = livroDAO.callProcedureInfoLivro(1);
+		infos.forEach(System.out::println);
+
+	}
+
+	private void procedureUppercaseTituloLivro() {
+
+		Map<String, Object> map = livroDAO.callProcedureUppercaseTitulo(1);
+
+		for (Map.Entry<String, Object> kv : map.entrySet()) {
+			System.out.println(kv.getKey() + " : " + kv.getValue());
+		}
+	}
+
+	private void findLivroByTituloAndEdicao() {
+		Livro livro = livroDAO.findByTituloAndEdicao("Aprenda JavaEE 8", 2);
+		System.out.println(livro);
+	}
+
+	private void alterLivro() {
+		Livro livro = livroDAO.findLivroWithAutores(1);
+		System.out.println(livro);
+
+		livro.setTitulo("Aprenda JavaEE 8");
+		livro.setEdicao(2);
+		livro.setPaginas(453);
+
+		int ok = livroDAO.alter(livro);
+
+		if (ok == 1) {
+			System.out.println("Operação foi um sucesso!");
+
+			livro = livroDAO.findLivroWithAutores(1);
+			System.out.println(livro);
+		} else {
+			System.out.println("Deu merda");
+		}
+	}
+
+	private void updateLivro() {
+
+		Livro livro = livroDAO.findLivroWithAutores(1);
+		System.out.println(livro);
+
+		int ok = livroDAO.update(livro, " Aprenda Java EE", 1, 420);
+
+		if (ok == 1) {
+			System.out.println("Operação foi um sucesso!");
+
+			livro = livroDAO.findLivroWithAutores(1);
+			System.out.println(livro);
+		} else {
+			System.out.println("Deu merda");
+		}
+
+	}
+
+	private void findLivrosByPaginas() {
+
+		List<Livro> livros = livroDAO.findLivrosbyPaginas(100, 300);
+		livros.forEach(System.out::println);
+
+	}
+
+	private void findLivroByEdicao() {
+
+		List<Livro> livros = livroDAO.findByEdicao(1);
+		livros.forEach(System.out::println);
+
 	}
 
 	private void findAutorWithLivros() {
 
 		Autor autor = autorDAO.findAutorWithLivros(1);
 		System.out.println(autor);
-		
+
 		autor.getLivros().forEach(System.out::println);
-		
+
 	}
 
 	private void findLivroWithAutores() {
-		
+
 		Livro livro = livroDAO.findLivroWithAutores(1);
-		
+
 		System.out.println(livro);
-		
+
 		livro.getAutores().forEach(System.out::println);
-		
+
 	}
 
 	private void insertLivro() {
@@ -88,27 +187,26 @@ public class EditoraApplication implements CommandLineRunner {
 		jse.setTitulo("Empreendedorismo e tecnologia");
 		jse.setPaginas(312);
 		jse.setEdicao(1);
-		
-		String[] autores = {"Daniel Queiroz"};
-		
+
+		String[] autores = { "Daniel Queiroz" };
+
 		jse = livroDAO.save(jse);
-		
+
 		Integer idLivro = jse.getId();
-		
+
 		for (String string : autores) {
 			Integer idAutor = autorDAO.getIdByNome(string);
-			
+
 			livroAutorDAO.save(new LivroAutor(idLivro, idAutor));
 		}
-		
+
 	}
 
 	private void findEditorasWithAutoresTest() {
 
 		Editora editora = editoraDAO.findEditoraWithAutoresPaginados(3, 0, 2);
 
-		System.out.printf("\n %s, %s, %s\n", editora.getRazaoSocial(), editora.getCidade(),
-				editora.getEmail());
+		System.out.printf("\n %s, %s, %s\n", editora.getRazaoSocial(), editora.getCidade(), editora.getEmail());
 
 		editora.getAutores().forEach(System.out::println);
 
