@@ -33,17 +33,16 @@ public class EditoraDAO {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	
+
 	public void saveBatch(List<Editora> editoras) {
-		SimpleJdbcInsert simple = new SimpleJdbcInsert(jdbcTemplate)
-				.withTableName("Editoras")
-				.usingColumns("razao_social","cidade","email");
-		
+		SimpleJdbcInsert simple = new SimpleJdbcInsert(jdbcTemplate).withTableName("Editoras")
+				.usingColumns("razao_social", "cidade", "email");
+
 		SqlParameterSource[] batch = SqlParameterSourceUtils.createBatch(editoras.toArray());
-		
+
 		simple.executeBatch(batch);
 	}
-	
+
 	public void insertBatch(List<Editora> editoras) {
 		jdbcTemplate.batchUpdate(sqlInsert, new BatchPreparedStatementSetter() {
 			@Override
@@ -53,7 +52,7 @@ public class EditoraDAO {
 				ps.setString(2, editora.getCidade());
 				ps.setString(3, editora.getEmail());
 			}
-			
+
 			@Override
 			public int getBatchSize() {
 				return editoras.size();
@@ -62,12 +61,11 @@ public class EditoraDAO {
 	}
 
 	public Editora findEditoraWithAutoresPaginados(int id, int page, int size) {
-		List<Map<String, Object>> rows = jdbcTemplate
-				.queryForList(
-						"select e.id_editora, e.razao_social, e.cidade, e.email, "
-								+ "a.id_autor, a.nome, a.email as autor_email, a.id_editora as autor_id_editora"
-								+ " from Editoras e, Autores a where e.id_editora = a.id_editora and e.id_editora = ? limit ?,?",
-						id, page * size, size);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(
+				"select e.id_editora, e.razao_social, e.cidade, e.email, "
+						+ "a.id_autor, a.nome, a.email as autor_email, a.id_editora as autor_id_editora"
+						+ " from Editoras e, Autores a where e.id_editora = a.id_editora and e.id_editora = ? limit ?,?",
+				id, page * size, size);
 
 		Editora editora = null;
 

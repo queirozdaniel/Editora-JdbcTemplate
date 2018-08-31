@@ -1,11 +1,14 @@
 package com.danielqueiroz.editora.dao;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -32,6 +35,44 @@ public class AutorDAO {
 		this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource).withTableName("Autores")
 				// .usingColumns("nome", "email", "id_editora")
 				.usingGeneratedKeyColumns("id_autor");
+	}
+
+	
+	public void deleteBatch(List<Integer> ids) {
+		jdbcTemplate.batchUpdate("delete from Autores where id_autor = ?",
+				new BatchPreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps, int i) throws SQLException {
+						ps.setInt(1, ids.get(i));
+
+					}
+
+					@Override
+					public int getBatchSize() {
+						return ids.size();
+					}
+				});
+	}
+	
+	public void updateBatch(List<Autor> autores) {
+		jdbcTemplate.batchUpdate("update Autores set nome = ?, email = ?, id_editora = ? where id_autor = ?",
+				new BatchPreparedStatementSetter() {
+
+					@Override
+					public void setValues(PreparedStatement ps, int i) throws SQLException {
+
+						ps.setString(1, autores.get(i).getNome());
+						ps.setString(2, autores.get(i).getEmail());
+						ps.setInt(3, autores.get(i).getEditora().getId());
+						ps.setInt(4, autores.get(i).getId());
+
+					}
+
+					@Override
+					public int getBatchSize() {
+						return autores.size();
+					}
+				});
 	}
 
 	public Autor findAutorWithLivros(int id) {

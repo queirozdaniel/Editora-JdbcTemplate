@@ -11,10 +11,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.danielqueiroz.editora.dao.AutorDAO;
 import com.danielqueiroz.editora.dao.EditoraDAO;
+import com.danielqueiroz.editora.dao.EnderecoDAO;
 import com.danielqueiroz.editora.dao.LivroAutorDAO;
 import com.danielqueiroz.editora.dao.LivroDAO;
 import com.danielqueiroz.editora.model.Autor;
 import com.danielqueiroz.editora.model.Editora;
+import com.danielqueiroz.editora.model.Endereco;
 import com.danielqueiroz.editora.model.Livro;
 import com.danielqueiroz.editora.model.LivroAutor;
 
@@ -29,6 +31,8 @@ public class EditoraApplication implements CommandLineRunner {
 	private LivroDAO livroDAO;
 	@Autowired
 	private LivroAutorDAO livroAutorDAO;
+	@Autowired
+	private EnderecoDAO enderecoDAO;
 
 	public static void main(String[] args) {
 		SpringApplication.run(EditoraApplication.class, args);
@@ -68,9 +72,39 @@ public class EditoraApplication implements CommandLineRunner {
 		// procedureUppercaseTituloLivro();
 		// procedureInfoLivro();
 		// functionTotalDeLivrosPorAutor();
-		insertBatchEditoras();
+		// insertBatchEditoras();
+		// updateBatchAutores();
+		// deleteBatchAutores();
+		// findAllEnderecos();
 
 		System.out.println("\n\n<<<<< END RUNNER >>>>>");
+	}
+
+	private void findAllEnderecos() {
+
+		List<Endereco> enderecos = enderecoDAO.findAll();
+		enderecos.forEach(s -> {
+			System.out.println(s);
+		});
+	}
+
+	private void deleteBatchAutores() {
+		List<Integer> ids_autores = Arrays.asList(9, 8);
+
+		autorDAO.deleteBatch(ids_autores);
+	}
+
+	private void updateBatchAutores() {
+		Autor a1 = autorDAO.finById(5);
+		a1.setNome("Juliana Queiroz");
+
+		Autor a2 = autorDAO.finById(4);
+		a2.setNome("Cezar Santos Souza");
+
+		List<Autor> autores = Arrays.asList(a1, a2);
+
+		autorDAO.updateBatch(autores);
+
 	}
 
 	private void insertBatchEditoras() {
@@ -80,7 +114,7 @@ public class EditoraApplication implements CommandLineRunner {
 
 		List<Editora> editoras = Arrays.asList(editora, editora2);
 
-//		editoraDAO.saveBatch(editoras);
+		// editoraDAO.saveBatch(editoras);
 		editoraDAO.insertBatch(editoras);
 	}
 
